@@ -1,0 +1,17 @@
+%macro MMWRweek(pDate, pMMWRwk, pMMWRyr); 
+%local current_year prior_year next_year; 
+%let current_year=intnx('year', &pDate., 0); ** start of current year; 
+%let prior_year=intnx('year', &pDate., -1); ** start of prior year;
+%let next_year=intnx('year', &pDate., 1); ** start of next year;
+
+**----compute initial estimate of MMWR week and year----**; 
+&pMMWRwk. = intck('week', intnx('week', &current_year., weekday(&current_year.) GT 4), &pDate.)+1; 
+&pMMWRyr. = year(&current_year);
+
+**----correct the week and the year for boundary conditions----**; 
+if &pMMWRwk. EQ 53 and weekday(&next_year.) LE 4 then do; &pMMWRwk. = 1;
+&pMMWRyr. = year(&next_year); end; if &pMMWRwk. EQ 0 then do; 
+&pMMWRwk. = intck('week', intnx('week', &prior_year., weekday(&prior_year.) GT 4), &pDate.)+1; 
+&pMMWRyr. = year(&prior_year); 
+end;
+%mend;
